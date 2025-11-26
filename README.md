@@ -1,3 +1,3 @@
 # phaser-demo
 
-Das ist mein erstes Phaser Projekt.
+My very first Phaser Project. >ᴗ< 
