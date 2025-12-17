@@ -6,7 +6,7 @@ class Breakout extends Phaser.Scene
 
         this.bricks;
         this.paddle;
-        this.ball;
+        this.balls = [];
     }
 
     preload ()
@@ -27,14 +27,19 @@ class Breakout extends Phaser.Scene
             gridAlign: { width: 10, height: 6, cellWidth: 64, cellHeight: 32, x: 112, y: 100 }
         });
 
-        this.ball = this.physics.add.image(400, 500, 'assets', 'ball1').setCollideWorldBounds(true).setBounce(1);
-        this.ball.setData('onPaddle', true);
+        for (let i = 0; i < 500; i++) {
+         this.balls[i] = this.physics.add.image(380, 500, 'assets', 'ball1').setCollideWorldBounds(true).setBounce(1);
+        this.balls[i].setData('onPaddle', true);
+        }
+    
 
         this.paddle = this.physics.add.image(400, 550, 'assets', 'paddle1').setImmovable();
 
         //  Our colliders
-        this.physics.add.collider(this.ball, this.bricks, this.hitBrick, null, this);
-        this.physics.add.collider(this.ball, this.paddle, this.hitPaddle, null, this);
+        for (let i = 0; i < this.balls.length; i++) {
+            this.physics.add.collider(this.balls[i], this.bricks, this.hitBrick, null, this);
+            this.physics.add.collider(this.balls[i], this.paddle, this.hitPaddle, null, this);
+        }
 
         //  Input events
         this.input.on('pointermove', function (pointer)
@@ -43,9 +48,11 @@ class Breakout extends Phaser.Scene
             //  Keep the paddle within the game
             this.paddle.x = Phaser.Math.Clamp(pointer.x, 52, 748);
 
-            if (this.ball.getData('onPaddle'))
-            {
-                this.ball.x = this.paddle.x;
+            for (let i = 0; i < this.balls.length; i++) {
+                if (this.balls[i].getData('onPaddle'))
+                {
+                    this.balls[i].x = this.paddle.x + Math.random() *20 - 5;
+                }
             }
 
         }, this);
@@ -53,10 +60,12 @@ class Breakout extends Phaser.Scene
         this.input.on('pointerup', function (pointer)
         {
 
-            if (this.ball.getData('onPaddle'))
-            {
-                this.ball.setVelocity(-75, -300);
-                this.ball.setData('onPaddle', false);
+            for (let i = 0; i < this.balls.length; i++) {
+                if (this.balls[i].getData('onPaddle'))
+                {
+                    this.balls[i].setVelocity(-75, -300);
+                    this.balls[i].setData('onPaddle', false);
+                }
             }
 
         }, this);
@@ -74,9 +83,12 @@ class Breakout extends Phaser.Scene
 
     resetBall ()
     {
-        this.ball.setVelocity(0);
-        this.ball.setPosition(this.paddle.x, 500);
-        this.ball.setData('onPaddle', true);
+        for (let i = 0; i < this.balls.length; i++) {
+            this.balls[i].setVelocity(0);
+            this.balls[i].setPosition(this.paddle.x, 500);
+            this.balls[i].setData('onPaddle', true);
+        }
+    
     }
 
     resetLevel ()
@@ -117,10 +129,18 @@ class Breakout extends Phaser.Scene
 
     update ()
     {
-        if (this.ball.y > 600)
+        let reset = true;
+        for (let i = 0; i < this.balls.length; i++) {
+            if (this.balls[i].y <= 600) {
+                reset = false;
+            }
+        }
+
+        if (reset)
         {
             this.resetBall();
         }
+       
     }
 }
 
